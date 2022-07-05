@@ -1,0 +1,91 @@
+class Solution {
+    public String reorganizeString(String s) {
+        int[] arr = new int[26];
+        for(int i=0;i<s.length();i++) arr[s.charAt(i)-'a']++;
+        int max =0, maxi=0;
+        for(int i=0;i<26;i++) {
+            if(arr[i]>max){
+                max=arr[i];
+                maxi=i;
+            }
+        }
+        if(max>(s.length()+1)/2) return "";
+        
+        char[] ans = new char[s.length()];
+        int idx=0;
+        while(arr[maxi]>0){
+            ans[idx]=(char)(maxi+'a');
+            idx+=2;
+            arr[maxi]--;
+        }
+        for(int i=0;i<26;i++){
+            while(arr[i]>0){
+                if(idx>=ans.length){
+                    idx=1;
+                }
+                ans[idx]=(char)(i+'a');
+                idx+=2;
+                arr[i]--;
+            }
+            
+        }
+        return String.valueOf(ans);
+        
+    }
+}
+
+
+
+
+
+
+
+
+//2nd solution using priorityQueue HashMap and Pair classs 
+
+class Solution {
+    
+    static class Pair implements Comparable<Pair>{
+        char ch;
+        int freq;
+        public Pair(char ch,int freq){
+            this.ch=ch;
+            this.freq=freq;
+        }
+        public int compareTo(Pair o){  
+            return o.freq-this.freq;    
+        }  
+    }
+    public String reorganizeString(String s) {
+        HashMap<Character,Integer> map = new HashMap<>();
+        for(int i=0;i<s.length();i++){
+            char ch = s.charAt(i);
+            int count = map.getOrDefault(ch,0)+1;
+            if(count>(s.length()+1)/2) return "";
+            map.put(ch,map.getOrDefault(ch,0)+1);
+        }
+        
+        PriorityQueue<Pair> pq = new PriorityQueue<>();
+        for(Character key: map.keySet()){
+            pq.add(new Pair(key, map.get(key)));
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        
+        Pair hold = pq.poll();
+        sb.append(hold.ch);
+        hold.freq--;
+        
+        while(!pq.isEmpty()){
+            Pair curr = pq.poll();
+            sb.append(curr.ch);
+            curr.freq--;
+            if(hold.freq>0){
+                pq.offer(hold);
+            }
+            hold=curr;
+        }
+        return sb.toString();
+        
+    }
+}
